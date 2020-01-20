@@ -13,14 +13,21 @@ def getSeq(gene_dataframe, twobitreader):
     for i, gene in gene_dataframe.iterrows():
         seq = twobitreader[gene['chrom']][int(gene['startTranscription']):int(gene['endTranscription'])]
         seq = np.array(list(seq))
+
         if gene['strand'] == '-':
-            for k, v in REVERSE_COMPLEMENT_MAP.items():
-                seq[seq == k] = v
+            seq = np.flip(seq)
+            seq = np.vectorize(REVERSE_COMPLEMENT_MAP.get)(seq)
         exon_starts = np.array(gene['exonStart'].split(',')[:-1], dtype=np.int64)
         exon_sizes = np.array(gene['exonSize'].split(',')[:-1], dtype=np.int64)
-        intron_exon_lbl = np.zeros(len(seq))
-        for start, size in zip(exon_starts, exon_sizes):
-            intron_exon_lbl[start: start + size] = 1
+        intron_exon_lbl = np.full(len(seq), "I")
+        for exon_idx, (start, size) in enumerate(zip(exon_starts, exon_sizes)):
+            if exon_idx == 0:
+                exon_lbl = 'F'
+            elif exon_idx == len(exon_starts) - 1:
+                exon_lbl = 'L'
+            else:
+                exon_lbl = 'M'
+            intron_exon_lbl[start: start + size] = exon_lbl
         yield seq, intron_exon_lbl
 
 
