@@ -30,7 +30,7 @@ def getSeq(gene_tsv_path, twobitpath):
             else:
                 exon_lbl = 'M'
             intron_exon_lbl[start: start + size] = exon_lbl
-        yield seq, intron_exon_lbl
+        yield seq + ['^'], intron_exon_lbl + ['L']
 
 
 def parse_args():
