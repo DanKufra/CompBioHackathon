@@ -16,11 +16,13 @@ def get_next_exon_intron(gene_tsv_path, twobitpath, intron=False):
         if intron:
             starts = [start + size for start, size in zip(exon_starts[:-1], exon_sizes[:-1])]
             sizes = [exon_start - intron_start for exon_start, intron_start in zip(exon_starts[1:], starts[:-1])]
+            if len(starts) == 1:
+                sizes = [exon_starts[-1] - starts[0]]
         else:
             starts = exon_starts
             sizes = exon_sizes
         for idx, (start, size) in enumerate(zip(starts, sizes)):
-            if size == 0:
+            if size <= 0:
                 continue
             seq = np.array(list(genome_reader[gene['chrom']][start:start + size].upper()))
             if gene['strand'] == '-':
@@ -52,7 +54,6 @@ if __name__ == '__main__':
     emission_stats_df = pd.DataFrame(columns=['name', 'state', 'A', 'C', 'G', 'T'])
 
     for i, (seq, lbl, gene_name) in tqdm(enumerate(intron_gen)):
-        # hist = np.histogram(seq, bins=['A', 'C', 'G', 'T'])
         emission_stats_df = emission_stats_df.append(pd.Series({"name": gene_name, "state": lbl,
                                                                 "A": np.sum(seq == 'A'),
                                                                 "C": np.sum(seq == 'C'),
@@ -61,7 +62,6 @@ if __name__ == '__main__':
 
 
     for i, (seq, lbl, gene_name) in tqdm(enumerate(exon_gen)):
-        # hist = np.histogram(seq, bins=['A', 'C', 'G', 'T'])
         emission_stats_df = emission_stats_df.append(pd.Series({"name" : gene_name, "state" : lbl,
                                                                 "A": np.sum(seq == 'A'),
                                                                 "C": np.sum(seq == 'C'),
