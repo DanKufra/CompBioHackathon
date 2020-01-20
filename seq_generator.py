@@ -9,9 +9,11 @@ GENE_TSV_HEADER = ['chrom', 'startTranscription', 'endTranscription', 'name', 'u
 REVERSE_COMPLEMENT_MAP = {"A": "T", "T": "A", "C": "G", "G": "C"}
 
 
-def getSeq(gene_dataframe, twobitreader):
-    for i, gene in gene_dataframe.iterrows():
-        seq = twobitreader[gene['chrom']][int(gene['startTranscription']):int(gene['endTranscription'])]
+def getSeq(gene_tsv_path, twobitpath):
+    genes_df = pd.read_csv(gene_tsv_path, sep='\t', names=GENE_TSV_HEADER)
+    genome_reader = twobitreader.TwoBitFile(twobitpath)
+    for i, gene in genes_df.iterrows():
+        seq = genome_reader[gene['chrom']][int(gene['startTranscription']):int(gene['endTranscription'])]
         seq = np.array(list(seq))
 
         if gene['strand'] == '-':
@@ -33,22 +35,17 @@ def getSeq(gene_dataframe, twobitreader):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('2bit_path', help='2bit file we use to get sequences)')
+    parser.add_argument('twobit_path', help='2bit file we use to get sequences)')
     parser.add_argument('gene_tsv_path', help='gene tsv path')
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     args = parse_args()
-    genes_df = pd.read_csv(args.gene_tsv_path, sep='\t', names=GENE_TSV_HEADER)
-    genome_reader = twobitreader.TwoBitFile('./hg19.2bit')
-
-    gene_gen = getSeq(genes_df, genome_reader)
+    # usage example
+    gene_gen = getSeq(args.gene_tsv_path, args.twobit_path)
     for i, (seq, lbl) in enumerate(gene_gen):
         print(i)
         print(seq)
         print(lbl)
         break
-
-    print("end")
-    # print(genome['chr9'][35684800:35684869])
