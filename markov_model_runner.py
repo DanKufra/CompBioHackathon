@@ -48,6 +48,34 @@ def run_viterbi(markov_model, seq, emission_array, state_array):
     return predicted_states, prob
 
 
+def calc_statistics(pred, lbl, pos_vals=None, neg_vals=None):
+    # get overall accuracy
+    overall_accuracy = np.sum(pred == lbl) / len(pred)
+
+    # TPR
+    if pos_vals  is not None:
+        pred_is_pos = np.zeros(len(pred))
+        for val in pos_vals:
+            pred_is_pos[pred == val] = 1.0
+        lbl_is_pos = np.zeros(len(lbl))
+        for val in pos_vals:
+            lbl_is_pos[lbl == val] = 1.0
+        TPR = np.sum((pred_is_pos == lbl_is_pos) & (lbl_is_pos == 1.0)) / np.sum(lbl_is_pos)
+
+    # TNR
+    if neg_vals  is not None:
+        pred_is_neg = np.zeros(len(pred))
+        for val in neg_vals:
+            pred_is_neg[pred == val] = 1.0
+        lbl_is_neg = np.zeros(len(lbl))
+        for val in neg_vals:
+            lbl_is_neg[lbl == val] = 1.0
+        TNR = np.sum((pred_is_neg == lbl_is_neg) & (lbl_is_neg == 1.0)) / np.sum(lbl_is_neg)
+
+    print("ACC: %f TPR: %f TNR: %f" % (overall_accuracy, TPR, TNR))
+    # get confusion matrix of preds vs labels (Multiclass)
+
+
 if __name__ == '__main__':
     # args = parse_args()
     emission_df = pd.read_csv('./initial_emissions_matrix.tsv', sep=' ', index_col=0)
@@ -63,18 +91,14 @@ if __name__ == '__main__':
         print(predicted_states)
         lbl_str = ''
         for l, c in zip(lbl, seq):
-            # if c == 'N':
-            #     continue
             lbl_str += l
         lbl_str += 'E'
         print(lbl_str)
         intron_only = ''
         for i in range(len(lbl_str)):
             intron_only += 'I'
-        ACC = np.sum(np.array(list(lbl_str)) == np.array(list(predicted_states))) / len(lbl_str)
-        ACC_intron = np.sum(np.array(list(lbl_str)) == np.array(list(intron_only))) / len(lbl_str)
-        if ACC > 0.8:
-            print("WOW")
-        print("ACC is %f, ACC_intron is %f" % (ACC, ACC_intron))
 
-        # break
+        intron_only = np.array(list(intron_only))
+        lbl_arr = np.array(list(lbl_str))
+        pred_arr = np.array(list(predicted_states))
+        calc_statistics(pred_arr, lbl_arr, pos_vals=['F', 'M', 'L'], neg_vals=['I'])
