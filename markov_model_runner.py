@@ -73,6 +73,7 @@ def calc_statistics(pred, lbl, pos_vals=None, neg_vals=None):
         TNR = np.sum((pred_is_neg == lbl_is_neg) & (lbl_is_neg == 1.0)) / np.sum(lbl_is_neg)
 
     print("ACC: %f TPR: %f TNR: %f" % (overall_accuracy, TPR, TNR))
+
     # get confusion matrix of preds vs labels (Multiclass)
 
 
