@@ -38,12 +38,8 @@ def run_viterbi(markov_model, seq, emission_array, state_array):
     mutable_seq = MutableSeq("", emission_alphabet)
     # generate the sequence
     for letter in seq:
-        if letter == 'None':
-            continue
-        if letter == 'N':
-            continue
-        if letter is None:
-            continue
+        # if letter == 'N':
+        #     continue
         # add on a new roll to the sequence
         mutable_seq.append(letter[0].upper())
     mutable_seq = mutable_seq.toseq()
@@ -67,14 +63,18 @@ if __name__ == '__main__':
         print(predicted_states)
         lbl_str = ''
         for l, c in zip(lbl, seq):
-            if c == 'None':
-                continue
-            if c == 'N':
-                continue
-            if c is None:
-                continue
+            # if c == 'N':
+            #     continue
             lbl_str += l
         lbl_str += 'E'
         print(lbl_str)
-        print("ACC is %f" % (np.sum(np.array(list(lbl_str)) == np.array(list(predicted_states))) / len(lbl_str)))
+        intron_only = ''
+        for i in range(len(lbl_str)):
+            intron_only += 'I'
+        ACC = np.sum(np.array(list(lbl_str)) == np.array(list(predicted_states))) / len(lbl_str)
+        ACC_intron = np.sum(np.array(list(lbl_str)) == np.array(list(intron_only))) / len(lbl_str)
+        if ACC > 0.8:
+            print("WOW")
+        print("ACC is %f, ACC_intron is %f" % (ACC, ACC_intron))
+
         # break

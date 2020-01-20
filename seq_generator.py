@@ -14,6 +14,7 @@ def getSeq(gene_tsv_path, twobitpath):
     genome_reader = twobitreader.TwoBitFile(twobitpath)
     for i, gene in genes_df.iterrows():
         seq = genome_reader[gene['chrom']][int(gene['startTranscription']):int(gene['endTranscription'])]
+        seq = seq.upper()
         seq = np.array(list(seq))
 
         if gene['strand'] == '-':
