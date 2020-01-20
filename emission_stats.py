@@ -70,5 +70,5 @@ if __name__ == '__main__':
 
 
 
-    emission_stats_df.to_csv("./emission_stats_df.tsv", sep="\t")
+    emission_stats_df.to_csv("./emission_stats_df.tsv", sep=" ")
     print('end')
