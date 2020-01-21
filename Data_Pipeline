@@ -15,8 +15,13 @@ grep "chr19\t" knownGene.txt > knownGene_chr19.txt
 # count number of exons in each gene:
 awk '{print $8}' knownGene_chr19.txt | sort | uniq -c
 
-#get only genes with exon count in interval
+#get only genes with exon count in interval of 2-29
 awk -F"\t" '$8>1' knownGene_chr19.txt | awk -F"\t" '$8<30' > knownGene_chr19_excnt_2_29.txt
 
-All in one on Tommy's overlapping notation file:
+#All in one on Tommy's overlapping notation file:
 grep "chr19\t" hg19.genes.NR.bed | awk -F"\t" '$10>1' | awk -F"\t" '$10<30' > hg19.genes.NR.chr19.exonCount2_29.bed
+
+# create initial emissions_stats df using:
+/Users/dankufra/PycharmProjects/CompBioHackathon/emission_stats.py hg19.2bit hg19.genes.NR.chr19.exonCount2_29.bed
+
+# this creates a df with header of "name state A C G T"
